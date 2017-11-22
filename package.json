@@ -1,0 +1,20 @@
+{
+  "name": "DPA-token",
+  "version": "0.0.1",
+  "engines": {
+    "node": "4.2.6",
+    "npm": "2.1.x"
+  },
+  "dependencies": {
+    "express": "4.15.3",
+    "static-favicon": "2.0.0-alpha",
+    "morgan": "1.8.2",
+    "cookie-parser": "1.4.3",
+    "mongoose": "4.11.3",
+    "body-parser": "1.17.2",
+    "debug": "2.6.8"
+  },
+  "scripts": {
+    "start": "node ./bin/www"
+  }
+}
