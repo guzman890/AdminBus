@@ -1,16 +1,20 @@
-var mongoose = require( 'mongoose' );
+var mongoose = require( 'mongoose' ), Schema = mongoose.Schema;
 //require
 var dbasiento= require('./asiento');
 var dbmovilidad= require('./movilidad');
 
 //Embarque
 var EmbarqueSchema = new mongoose.Schema({
-    Movilidad: dbmovilidad.Movilidad,
-    Fecha: { 
-        type: Date,
-        required:true 
+    Movilidad: {
+        type: Schema.Types.ObjectId,
+        ref: "Movilidad",
+        required: true
     },
-    Clientes: [dbasiento.Asiento],
+    Horario:{
+        type: Date,
+        required:true
+    },
+    Asientos: [dbasiento.Asiento]
 });
 
 mongoose.model('Embarque', EmbarqueSchema);

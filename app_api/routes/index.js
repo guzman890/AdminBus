@@ -26,5 +26,8 @@ router.post('/embarque', ctrlEmbarque.EmbarqueCreate);
 router.put('/embarque/:embarque', ctrlEmbarque.EmbarqueUpdateOne);
 router.delete('/embarque/:embarque', ctrlEmbarque.EmbarqueDeleteOne);
 
+/* Registrar Asientos */
+router.put('/embarque/:embarque/asiento', ctrlEmbarque.RegistrarAsiento);
+
 
 module.exports = router;

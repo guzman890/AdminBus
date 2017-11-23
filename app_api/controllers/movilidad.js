@@ -53,7 +53,7 @@ module.exports.MovilidadReadOne = function(req, res) {
 module.exports.MovilidadCreate = function(req, res) {
     Movilidad
         .create({
-                Placa: req.body.DNI,
+                Placa: req.body.Placa,
                 Capacidad: req.body.Capacidad,
                 Tipo: req.body.Tipo
             }, 

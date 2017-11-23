@@ -10,6 +10,7 @@ var sendJsonResponse = function(res, status, content) {
 module.exports.EmbarqueList = function(req,res){
     Embarque
         .find()
+        .populate('Movilidad')
         .exec(function(err, embarques) {
             if (!embarques) {
                 sendJsonResponse(res, 404, {
@@ -29,6 +30,8 @@ module.exports.EmbarqueReadOne = function(req, res) {
     if (req.params.embarque) {
         Embarque
             .findById(req.params.embarque)
+            .populate('Movilidad')
+            .populate('Asientos.ClienteDueno')
             .exec(function(err, embarqueById) {
                 console.log("Buscando Embarque by ID");
                 if (!embarqueById) {
@@ -51,10 +54,31 @@ module.exports.EmbarqueReadOne = function(req, res) {
 
 // Crear Embarque
 module.exports.EmbarqueCreate = function(req, res) {
+    if( req.body.Movilidad == null ){
+        sendJsonResponse(res, 404, {
+            "message": "Falta Movilidad"}
+        );
+        return;
+    }
+
+    if( (req.body.yy == null) || 
+        (req.body.mm == null) || 
+        (req.body.dd == null) || 
+        (req.body.HH == null) || 
+        (req.body.MM == null) 
+    ){    
+        sendJsonResponse(res, 404, {
+            "message": "Horario incompleto"}
+        );
+        return;
+    }
+
+    var DateParm = [ req.body.yy, req.body.mm, req.body.dd, req.body.HH, req.body.MM ];
+    var HorarioCreate = new Date(DateParm[0], DateParm[1], DateParm[2], DateParm[3], DateParm[4], 00, 00)
     Embarque
         .create({
             Movilidad: req.body.Movilidad,
-            Fecha: req.body.Fecha
+            Horario: HorarioCreate
             }, 
             function(err, EmbarqueCreate){
                 if(err){
@@ -129,6 +153,55 @@ module.exports.EmbarqueDeleteOne = function(req, res) {
     }
 };
 
-/* Llenar asientos*/
+/* Registrar asientos*/
 
+module.exports.RegistrarAsiento = function(req, res) {
+    
+    if (!req.params.embarque) {
+        sendJsonResponse(res, 404, {
+            "message": "Not found, embarque's id is required"}
+            );
+        return;
+    }
 
+    Embarque
+        .findById(req.params.embarque)
+        .select('-comments')
+        .exec(
+            function(err, embarqueById) {
+                if (!embarqueById) {
+                    sendJsonResponse(res, 404, {
+                        "message": "embarque's id is not found"}
+                        );
+                    return;
+                } else if (err) {
+                    sendJsonResponse(res, 400, err);
+                    return;
+                }
+
+                addAsientoToEmbarque(req, res, embarqueById);
+
+            }
+        );
+};
+
+var addAsientoToEmbarque = function(req, res, embarqueById) {
+    if (!embarqueById) {
+        sendJsonResponse(res, 404, "embarque is empty");
+    } else {
+        embarqueById.Asientos.push({
+            NumAsiento: req.body.NumAsiento,
+            ClienteDueno: req.body.ClienteDueno,
+        });
+    
+        embarqueById.save(function(err, embarqueById) {
+            var asiento =embarqueById.Asientos[embarqueById.Asientos.length - 1];
+            if (err) {
+                sendJsonResponse(res, 404, err);
+            } else {
+                console.log(asiento);
+                sendJsonResponse(res, 200, asiento);
+            }
+        });
+    }    
+};
