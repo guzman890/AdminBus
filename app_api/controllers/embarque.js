@@ -74,11 +74,14 @@ module.exports.EmbarqueCreate = function(req, res) {
     }
 
     var DateParm = [ req.body.yy, req.body.mm, req.body.dd, req.body.HH, req.body.MM ];
-    var HorarioCreate = new Date(DateParm[0], DateParm[1], DateParm[2], DateParm[3], DateParm[4], 00, 00)
     Embarque
         .create({
             Movilidad: req.body.Movilidad,
-            Horario: HorarioCreate
+            yy: DateParm[0],
+            mm: DateParm[1],
+            dd: DateParm[2],
+            HH: DateParm[3],
+            MM: DateParm[4]
             }, 
             function(err, EmbarqueCreate){
                 if(err){
@@ -117,7 +120,11 @@ module.exports.EmbarqueUpdateOne = function(req, res) {
                 }
 
 		        embarqueById.Movilidad = req.body.Movilidad;	
-                embarqueById.Fecha = req.body.Fecha
+                embarqueById.yy = req.body.yy;
+                embarqueById.mm = req.body.mm;
+                embarqueById.dd = req.body.dd;
+                embarqueById.HH = req.body.HH;
+                embarqueById.MM = req.body.MM;
                 
 		        embarqueById.save(function(err, embarqueById) {
                     if (err) {
