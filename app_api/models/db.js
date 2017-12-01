@@ -2,7 +2,9 @@ var mongoose = require( 'mongoose' );
 require('./cliente');
 require('./embarque');
 require('./asiento');
+require('./ubicacion');
 require('./movilidad');
+
 
 
 //var dbURI = 'mongodb://localhost/ArduinoDPA';

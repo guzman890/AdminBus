@@ -2,8 +2,9 @@ var express = require('express');
 var router = express.Router();
 
 var ctrlCliente = require('../controllers/cliente');
-var ctrlMovilidad = require('../controllers/movilidad')
-var ctrlEmbarque = require('../controllers/embarque')
+var ctrlMovilidad = require('../controllers/movilidad');
+var ctrlEmbarque = require('../controllers/embarque');
+var ctrlUbicacion = require('../controllers/ubicacion');
 
 /*Cliente api*/
 router.get('/cliente', ctrlCliente.ClienteList);//obtenemos la lista
@@ -29,5 +30,10 @@ router.delete('/embarque/:embarque', ctrlEmbarque.EmbarqueDeleteOne);
 /* Registrar Asientos */
 router.put('/embarque/:embarque/asiento', ctrlEmbarque.RegistrarAsiento);
 
-
+/* ubicacion API*/
+router.get('/ubicacion', ctrlUbicacion.UbicacionList);
+router.get('/ubicacion/:ubicacion', ctrlUbicacion.UbicacionReadOne);
+router.post('/ubicacion', ctrlUbicacion.UbicacionCreate);
+router.put('/ubicacion/:ubicacion', ctrlUbicacion.UbicacionUpdateOne);
+router.delete('/ubicacion/:ubicacion', ctrlUbicacion.UbicacionDeleteOne);
 module.exports = router;
