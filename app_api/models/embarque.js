@@ -32,6 +32,7 @@ var EmbarqueSchema = new mongoose.Schema({
     },
     ingreso:{
         type: Number,
+        required:true
     },
     Asientos: [dbasiento.Asiento]
 });
