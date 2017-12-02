@@ -90,7 +90,7 @@ module.exports.UbicacionCreate = function(req, res) {
 
 // Actualizar ubicacion
 module.exports.UbicacionUpdateOne = function(req, res) {
-    if (!req.params.ubicacion) {
+    if (!req.body.ubicacion) {
         sendJsonResponse(res, 404, {
             "message": "Not found, ubicacion's id is required"}
             );
@@ -98,7 +98,7 @@ module.exports.UbicacionUpdateOne = function(req, res) {
     }
 
     Ubicacion
-        .findById(req.params.ubicacion)
+        .findById(req.body.ubicacion)
         .select('-comments')
         .exec(
             function(err, ubicacionById) {

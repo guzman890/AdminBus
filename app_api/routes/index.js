@@ -34,6 +34,6 @@ router.put('/embarque/:embarque/asiento', ctrlEmbarque.RegistrarAsiento);
 router.get('/ubicacion', ctrlUbicacion.UbicacionList);
 router.get('/ubicacion/:ubicacion', ctrlUbicacion.UbicacionReadOne);
 router.post('/ubicacion', ctrlUbicacion.UbicacionCreate);
-router.put('/ubicacion/:ubicacion', ctrlUbicacion.UbicacionUpdateOne);
+router.post('/ubicacion/update', ctrlUbicacion.UbicacionUpdateOne);
 router.delete('/ubicacion/:ubicacion', ctrlUbicacion.UbicacionDeleteOne);
 module.exports = router;
