@@ -17,7 +17,7 @@ router.delete('/cliente/:cliente', ctrlCliente.ClienteDeleteOne); //eliminar un 
 router.get('/movilidad', ctrlMovilidad.MovilidadList);//obtenemos la lista 
 router.get('/movilidad/:movilidad', ctrlMovilidad.MovilidadReadOne);//mostrar un especifico
 router.post('/movilidad', ctrlMovilidad.MovilidadCreate);//crear 
-router.put('/movilidad/update', ctrlMovilidad.MovilidadUpdateOne);// actualizar un especifico
+router.post('/movilidad/update', ctrlMovilidad.MovilidadUpdateOne);// actualizar un especifico
 router.delete('/movilidad/:movilidad', ctrlMovilidad.MovilidadDeleteOne); //eliminar un especifico
 
 /*Embarque api*/
