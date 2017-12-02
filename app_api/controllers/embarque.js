@@ -81,7 +81,8 @@ module.exports.EmbarqueCreate = function(req, res) {
             mm: DateParm[1],
             dd: DateParm[2],
             HH: DateParm[3],
-            MM: DateParm[4]
+            MM: DateParm[4],
+            ingreso: req.body.ingreso
             }, 
             function(err, EmbarqueCreate){
                 if(err){
@@ -97,7 +98,7 @@ module.exports.EmbarqueCreate = function(req, res) {
 
 // Actualizar embarque
 module.exports.EmbarqueUpdateOne = function(req, res) {
-    if (!req.params.embarque) {
+    if (!req.body.embarque) {
         sendJsonResponse(res, 404, {
             "message": "Not found, embarque's id is required"}
             );
@@ -105,7 +106,7 @@ module.exports.EmbarqueUpdateOne = function(req, res) {
     }
 
     Embarque
-        .findById(req.params.embarque)
+        .findById(req.body.embarque)
         .select('-comments')
         .exec(
             function(err, embarqueById) {
@@ -125,7 +126,7 @@ module.exports.EmbarqueUpdateOne = function(req, res) {
                 embarqueById.dd = req.body.dd;
                 embarqueById.HH = req.body.HH;
                 embarqueById.MM = req.body.MM;
-                
+                embarqueById.ingreso= req.body.ingreso
 		        embarqueById.save(function(err, embarqueById) {
                     if (err) {
                         sendJsonResponse(res, 404, err);

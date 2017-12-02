@@ -62,7 +62,7 @@ module.exports.UbicacionCreate = function(req, res) {
     }
 
     if( (req.body.latitud == null) || 
-        (req.body.longuitud == null)  
+        (req.body.longitud == null)  
     ){    
         sendJsonResponse(res, 404, {
             "message": "Horario incompleto"}
@@ -74,7 +74,7 @@ module.exports.UbicacionCreate = function(req, res) {
         .create({
             Movilidad: req.body.Movilidad,
             latitud: req.body.latitud,
-            longuitud: req.body.longuitud
+            longitud: req.body.longitud
             }, 
             function(err, UbicacionCreate){
                 if(err){
@@ -114,7 +114,7 @@ module.exports.UbicacionUpdateOne = function(req, res) {
 
 		        ubicacionById.Movilidad = req.body.Movilidad;	
                 ubicacionById.latitud = req.body.latitud;
-                ubicacionById.longuitud = req.body.longuitud;
+                ubicacionById.longitud = req.body.longitud;
                 
 		        ubicacionById.save(function(err, ubicacionById) {
                     if (err) {

@@ -14,7 +14,7 @@ var UbicacionSchema = new mongoose.Schema({
         size: 2,
         required:true
     },
-    longuitud: {
+    longitud: {
         type: Number,
         size: 2,
         required:true

@@ -24,7 +24,7 @@ router.delete('/movilidad/:movilidad', ctrlMovilidad.MovilidadDeleteOne); //elim
 router.get('/embarque', ctrlEmbarque.EmbarqueList);
 router.get('/embarque/:embarque', ctrlEmbarque.EmbarqueReadOne);
 router.post('/embarque', ctrlEmbarque.EmbarqueCreate);
-router.put('/embarque/:embarque', ctrlEmbarque.EmbarqueUpdateOne);
+router.post('/embarque/update', ctrlEmbarque.EmbarqueUpdateOne);
 router.delete('/embarque/:embarque', ctrlEmbarque.EmbarqueDeleteOne);
 
 /* Registrar Asientos */
