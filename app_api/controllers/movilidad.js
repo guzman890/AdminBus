@@ -71,7 +71,7 @@ module.exports.MovilidadCreate = function(req, res) {
 
 // Actualizar movilidad
 module.exports.MovilidadUpdateOne = function(req, res) {
-    if (!req.params.movilidad) {
+    if (!req.body.movilidad) {
         sendJsonResponse(res, 404, {
             "message": "Not found, movilidad's id is required"}
             );
@@ -79,7 +79,7 @@ module.exports.MovilidadUpdateOne = function(req, res) {
     }
 
     Movilidad
-        .findById(req.params.movilidad)
+        .findById(req.body.movilidad)
         .select('-comments')
         .exec(
             function(err, movilidadById) {
