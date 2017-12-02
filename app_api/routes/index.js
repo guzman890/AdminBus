@@ -10,7 +10,7 @@ var ctrlUbicacion = require('../controllers/ubicacion');
 router.get('/cliente', ctrlCliente.ClienteList);//obtenemos la lista
 router.get('/cliente/:cliente', ctrlCliente.ClienteReadOne);//mostrar un especifico
 router.post('/cliente', ctrlCliente.ClienteCreate);//crear 
-router.put('/cliente/:cliente', ctrlCliente.ClienteUpdateOne);// actualizar un user en especifico
+router.post('/cliente/update', ctrlCliente.ClienteUpdateOne);// actualizar un user en especifico
 router.delete('/cliente/:cliente', ctrlCliente.ClienteDeleteOne); //eliminar un user en especifico
 
 /*Movilidad api*/

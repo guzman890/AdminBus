@@ -70,7 +70,7 @@ module.exports.ClienteCreate = function(req, res) {
 
 // Actualizar cliente
 module.exports.ClienteUpdateOne = function(req, res) {
-    if (!req.params.cliente) {
+    if (!req.body.cliente) {
         sendJsonResponse(res, 404, {
             "message": "Not found, cliente's id is required"}
             );
@@ -78,7 +78,7 @@ module.exports.ClienteUpdateOne = function(req, res) {
     }
 
     Cliente
-        .findById(req.params.cliente)
+        .findById(req.body.cliente)
         .select('-comments')
         .exec(
             function(err, cliente) {
