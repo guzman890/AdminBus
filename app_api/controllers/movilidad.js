@@ -130,3 +130,41 @@ module.exports.MovilidadDeleteOne = function(req, res) {
             );
     }
 };
+
+module.exports.MovilidadUpdateGPS = function(req, res) {
+    if (!req.body.movilidad) {
+        sendJsonResponse(res, 404, {
+            "message": "Not found, movilidad's id is required"}
+            );
+        return;
+    }
+
+    Movilidad
+        .findById(req.body.movilidad)
+        .select('-comments')
+        .exec(
+            function(err, movilidadById) {
+                if (!movilidadById) {
+                    sendJsonResponse(res, 404, {
+                        "message": "movilidad's id not found"}
+                        );
+                    return;
+                } else if (err) {
+                    sendJsonResponse(res, 400, err);
+                    return;
+                }
+
+		        movilidadById.longitud=req.body.longitud;	
+                movilidadById.latitud=req.body.latitud;
+                
+		        movilidadById.save(function(err, movilidadById) {
+                    if (err) {
+                        sendJsonResponse(res, 404, err);
+                    } else {
+                        console.log(movilidadById);
+                        sendJsonResponse(res, 200, movilidadById);
+                    }
+                });
+            }
+        );
+};

@@ -15,6 +15,12 @@ var MovilidadSchema = new mongoose.Schema({
         type:String, 
         required:true, 
         size:12
+    },
+    longitud:{
+        type:Number 
+    },
+    latitud:{
+        type:Number
     }
 });
 
