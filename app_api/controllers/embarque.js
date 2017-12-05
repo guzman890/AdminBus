@@ -65,7 +65,8 @@ module.exports.EmbarqueCreate = function(req, res) {
         (req.body.mm == null) || 
         (req.body.dd == null) || 
         (req.body.HH == null) || 
-        (req.body.MM == null) 
+        (req.body.MM == null) || 
+        (req.body.ingreso == null)
     ){    
         sendJsonResponse(res, 404, {
             "message": "Horario incompleto"}
