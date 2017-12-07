@@ -1,5 +1,11 @@
-var mongoose = require('mongoose');
-var Cliente = mongoose.model('Cliente');
+var mysql = require('mysql');
+
+var arg = {
+    host: "localhost",
+    user: "root",
+    password: "root",
+    database: "tahuantinsuyo"
+};
 
 var sendJsonResponse = function(res, status, content) {
     res.status(status);
@@ -8,121 +14,180 @@ var sendJsonResponse = function(res, status, content) {
 
 // Leer lista de clientes
 module.exports.ClienteList = function(req,res){
-    Cliente
-        .find()
-        .exec(function(err, clientes) {
-            if (!clientes) {
-                sendJsonResponse(res, 404, {
-                    "message": "clientes not found"}
-                    );
-                return;
-            } else if (err) {
-                sendJsonResponse(res, 404, err);
-                return;
+
+    var con = mysql.createConnection(arg);
+
+    con.connect(function(err) {
+        if (err){
+            sendJsonResponse(res, 404, err);
+            return;
+        }
+        console.log("Connected!");
+
+        con.query(
+            "SELECT * FROM cliente", 
+            function (err, result, fields) {
+                con.end();
+                if (err) {
+                    sendJsonResponse(res, 404, err);
+                    return;
+                }else{
+                    console.log(result);                    
+                    sendJsonResponse(res, 200, result);
+                    return;
+                }
             }
-            sendJsonResponse(res, 200, clientes);
-        });
+        );
+    });
 }
 
 // Leer Cliente por ID mongoDB
 module.exports.ClienteReadOne = function(req, res) {
-    if (req.params.cliente) {
-        Cliente
-            .findById(req.params.cliente)
-            .exec(function(err, clienteById) {
-                console.log("Buscando Cliente by ID");
-                if (!clienteById) {
-                    sendJsonResponse(res, 404, {
-                        "message": "Cliente not found"}
-                        );
-                    return;
-                } else if (err) {
-                    sendJsonResponse(res, 404, err);
-                    return;
+    if (req.params.DNI) {
+
+        var con = mysql.createConnection(arg);
+        
+        con.connect(function(err) {
+            if (err){
+                sendJsonResponse(res, 404, err);
+                return;
+            }
+            console.log("Connected!");
+    
+            con.query(
+                "SELECT * FROM cliente WHERE DNI = "+req.params.DNI, 
+                function (err, result, fields) {
+                    if (err) {
+                        con.end();                        
+                        sendJsonResponse(res, 404, err);
+                        return;
+                    }else{
+                        console.log(result);                    
+                        sendJsonResponse(res, 200, result[0]);
+                        return;
+                    }
                 }
-                sendJsonResponse(res, 200, clienteById);
-            });
+            );
+        });
     } else {
         sendJsonResponse(res, 404, {
-            "message": "No userid in request"}
+            "message": "No cliente in request"}
             );
     }
 };
 
 // Crear Cliente
 module.exports.ClienteCreate = function(req, res) {
-    Cliente
-        .create({
-                DNI:req.body.DNI,
-                Nombre:req.body.Nombre
-            }, 
-            function(err,ClienteCreate){
-                if(err){
-                    console.log(err);
-                    sendJsonResponse(res,400,err);
-                }else {
-                    console.log(ClienteCreate);
-                    sendJsonResponse(res,201,ClienteCreate);
-                }
+
+    if (req.body.DNI != null ||
+        req.body.Nombre != null) {
+        
+        var con = mysql.createConnection(arg);
+                
+        con.connect(function(err) {
+            if (err){
+                sendJsonResponse(res, 404, err);
+                return;
             }
+            console.log("Connected!");
+            
+            con.query(
+                "INSERT INTO `cliente`(`DNI`, `Nombre`) VALUES ("+req.body.DNI+",'"+req.body.Nombre+"')", 
+                function (err, result, fields) {
+                    if (err) {
+                        con.end();                        
+                        sendJsonResponse(res, 404, err);
+                        return;
+                    }else{
+                        console.log(result);                    
+                        sendJsonResponse(res, 200, result);
+                        return;
+                    }
+                }
+            );
+        });
+    } else {
+        sendJsonResponse(res, 404, {
+            "message": "No cliente in request"}
         );
+    }
 };
 
 // Actualizar cliente
 module.exports.ClienteUpdateOne = function(req, res) {
-    if (!req.body.cliente) {
+    if (!req.body.DNI) {
+        
         sendJsonResponse(res, 404, {
-            "message": "Not found, cliente's id is required"}
+            "message": "Not found, cliente's DNI is required"}
             );
         return;
     }
 
-    Cliente
-        .findById(req.body.cliente)
-        .select('-comments')
-        .exec(
-            function(err, cliente) {
-                if (!cliente) {
-                    sendJsonResponse(res, 404, {
-                        "message": "cliente's id not found"}
-                        );
-                    return;
-                } else if (err) {
-                    sendJsonResponse(res, 400, err);
-                    return;
-                }
-
-		        cliente.DNI=req.body.DNI;	
-	    	    cliente.Nombre=req.body.Nombre;
+    if (req.body.DNI != null ||
+        req.body.Nombre != null) {
+        
+        var con = mysql.createConnection(arg);
                 
-		        cliente.save(function(err, cliente) {
-                    if (err) {
-                        sendJsonResponse(res, 404, err);
-                    } else {
-                        sendJsonResponse(res, 200, cliente);
-                    }
-                });
+        con.connect(function(err) {
+            if (err){
+                sendJsonResponse(res, 404, err);
+                return;
             }
+            console.log("Connected!");
+            
+            con.query(
+                "UPDATE cliente SET Nombre= '"+req.body.Nombre+"' WHERE DNI="+req.body.DNI,
+                function (err, result, fields) {
+                    if (err) {
+                        con.end();                        
+                        sendJsonResponse(res, 404, err);
+                        return;
+                    }else{
+                        console.log(result);                    
+                        sendJsonResponse(res, 200, result);
+                        return;
+                    }
+                }
+            );
+        });
+    } else {
+        sendJsonResponse(res, 404, {
+            "message": "No cliente in request"}
         );
+    }
 };
 
 // Eliminar Cliente
 module.exports.ClienteDeleteOne = function(req, res) {
-    if (req.params.cliente) {
-       Cliente
-            .findByIdAndRemove(req.params.cliente)
-            .exec(
-                function(err, cliente) {
-                    if (err) {
-                        sendJsonResponse(res, 404, err);
-                        return;
-                    }
-                    sendJsonResponse(res, 204, null);
+    if (req.body.DNI) {
+            
+            var con = mysql.createConnection(arg);
+                    
+            con.connect(function(err) {
+                if (err){
+                    sendJsonResponse(res, 404, err);
+                    return;
                 }
+                console.log("Connected!");
+                
+                con.query(
+                    "DELETE FROM cliente WHERE DNI="+req.body.DNI,
+                    function (err, result, fields) {
+                        if (err) {
+                            con.end();                        
+                            sendJsonResponse(res, 404, err);
+                            return;
+                        }else{
+                            console.log(result);                    
+                            sendJsonResponse(res, 200, result);
+                            return;
+                        }
+                    }
+                );
+            });
+        } else {
+            sendJsonResponse(res, 404, {
+                "message": "No cliente in request"}
             );
-    } else {
-        sendJsonResponse(res, 404, {
-            "message": "No Cliente"}
-            );
-    }
+        }
 };

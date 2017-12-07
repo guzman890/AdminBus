@@ -1,170 +1,239 @@
-var mongoose = require('mongoose');
-var Movilidad = mongoose.model('Movilidad');
+var mysql = require('mysql');
 
-var sendJsonResponse = function(res, status, content) {
+var arg = {
+    host: "localhost",
+    user: "root",
+    password: "root",
+    database: "tahuantinsuyo"
+};
+
+var sendJsonResponse = function (res, status, content) {
     res.status(status);
     res.json(content);
 };
 
 // Leer lista de movilidades
-module.exports.MovilidadList = function(req,res){
-    Movilidad
-        .find()
-        .exec(function(err, movilidades) {
-            if (!movilidades) {
-                sendJsonResponse(res, 404, {
-                    "message": "movilidades not found"}
-                    );
-                return;
-            } else if (err) {
-                sendJsonResponse(res, 404, err);
-                return;
+module.exports.MovilidadList = function (req, res) {
+    var con = mysql.createConnection(arg);
+
+    con.connect(function (err) {
+        if (err) {
+            sendJsonResponse(res, 404, err);
+            return;
+        }
+        console.log("Connected!");
+
+        con.query(
+            "SELECT * FROM movilidad",
+            function (err, result, fields) {
+                con.end();
+                if (err) {
+                    sendJsonResponse(res, 404, err);
+                    return;
+                } else {
+                    console.log(result);
+                    sendJsonResponse(res, 200, result);
+                    return;
+                }
             }
-            sendJsonResponse(res, 200, movilidades);
-        });
+        );
+    });
 }
 
 // Leer Movilidad por ID mongoDB
-module.exports.MovilidadReadOne = function(req, res) {
-    if (req.params.movilidad) {
-        Movilidad
-            .findById(req.params.movilidad)
-            .exec(function(err, movilidadById) {
-                console.log("Buscando Movilidad by ID");
-                if (!movilidadById) {
-                    sendJsonResponse(res, 404, {
-                        "message": "Movilidad not found"}
-                        );
-                    return;
-                } else if (err) {
-                    sendJsonResponse(res, 404, err);
-                    return;
+module.exports.MovilidadReadOne = function (req, res) {
+    if (req.params.placa) {
+
+        var con = mysql.createConnection(arg);
+
+        con.connect(function (err) {
+            if (err) {
+                sendJsonResponse(res, 404, err);
+                return;
+            }
+            console.log("Connected!");
+
+            con.query(
+                "SELECT * FROM movilidad WHERE placa = '" + req.params.placa +"'",
+                function (err, result, fields) {
+                    if (err) {
+                        con.end();
+                        sendJsonResponse(res, 404, err);
+                        return;
+                    } else {
+                        console.log(result);
+                        sendJsonResponse(res, 200, result[0]);
+                        return;
+                    }
                 }
-                sendJsonResponse(res, 200, movilidadById);
-            });
+            );
+        });
     } else {
         sendJsonResponse(res, 404, {
-            "message": "No userid in request"}
-            );
+            "message": "No movilidad in request"
+        }
+        );
     }
 };
 
 // Crear Movilidad
-module.exports.MovilidadCreate = function(req, res) {
-    Movilidad
-        .create({
-                Placa: req.body.Placa,
-                Capacidad: req.body.Capacidad,
-                Tipo: req.body.Tipo
-            }, 
-            function(err, MovilidadCreate){
-                if(err){
-                    console.log(err);
-                    sendJsonResponse(res,400,err);
-                }else {
-                    console.log(MovilidadCreate);
-                    sendJsonResponse(res,201,MovilidadCreate);
-                }
+module.exports.MovilidadCreate = function (req, res) {
+    if (req.body.placa != null ||
+        req.body.Capacidad != null||
+        req.body.Tipo != null
+        ) {
+        
+        var con = mysql.createConnection(arg);
+                
+        con.connect(function(err) {
+            if (err){
+                sendJsonResponse(res, 404, err);
+                return;
             }
+            console.log("Connected!");
+            
+            con.query(
+                "INSERT INTO movilidad(`Placa`, `Capacidad`, `Tipo`) VALUES ('"+req.body.placa+"', "+req.body.Capacidad+", '"+req.body.Tipo+"')", 
+                function (err, result, fields) {
+                    if (err) {
+                        con.end();                        
+                        sendJsonResponse(res, 404, err);
+                        return;
+                    }else{
+                        console.log(result);                    
+                        sendJsonResponse(res, 200, result);
+                        return;
+                    }
+                }
+            );
+        });
+    } else {
+        sendJsonResponse(res, 404, {
+            "message": "No movilidad in request"}
         );
+    }
 };
 
 // Actualizar movilidad
-module.exports.MovilidadUpdateOne = function(req, res) {
-    if (!req.body.movilidad) {
+module.exports.MovilidadUpdateOne = function (req, res) {
+    if (!req.body.placa) {
         sendJsonResponse(res, 404, {
-            "message": "Not found, movilidad's id is required"}
-            );
+            "message": "Not found, movilidad's id is required"
+        }
+        );
         return;
     }
 
-    Movilidad
-        .findById(req.body.movilidad)
-        .select('-comments')
-        .exec(
-            function(err, movilidadById) {
-                if (!movilidadById) {
-                    sendJsonResponse(res, 404, {
-                        "message": "movilidad's id not found"}
-                        );
-                    return;
-                } else if (err) {
-                    sendJsonResponse(res, 400, err);
-                    return;
-                }
-
-		        movilidadById.Placa=req.body.Placa;	
-                movilidadById.Capacidad=req.body.Capacidad;
-                movilidadById.Tipo=req.body.Tipo
+    if (req.body.placa != null ||
+        req.body.Capacidad != null ||
+        req.body.Tipo != null ) {
+        
+        var con = mysql.createConnection(arg);
                 
-		        movilidadById.save(function(err, movilidadById) {
-                    if (err) {
-                        sendJsonResponse(res, 404, err);
-                    } else {
-                        console.log(movilidadById);
-                        sendJsonResponse(res, 200, movilidadById);
-                    }
-                });
+        con.connect(function(err) {
+            if (err){
+                sendJsonResponse(res, 404, err);
+                return;
             }
+            console.log("Connected!");
+            
+            con.query(
+                "UPDATE movilidad SET Capacidad= "+req.body.Capacidad+" ,Tipo ='"+req.body.Tipo+"' WHERE Placa='"+req.body.placa+"'",
+                function (err, result, fields) {
+                    if (err) {
+                        con.end();                        
+                        sendJsonResponse(res, 404, err);
+                        return;
+                    }else{
+                        console.log(result);                    
+                        sendJsonResponse(res, 200, result);
+                        return;
+                    }
+                }
+            );
+        });
+    } else {
+        sendJsonResponse(res, 404, {
+            "message": "No movilidad in request"}
         );
+    }
 };
 
 // Eliminar Movilidad
-module.exports.MovilidadDeleteOne = function(req, res) {
-    if (req.params.movilidad) {
-       Movilidad
-            .findByIdAndRemove(req.params.movilidad)
-            .exec(
-                function(err, movilidadById) {
+module.exports.MovilidadDeleteOne = function (req, res) {
+    if (req.body.placa) {
+        
+        var con = mysql.createConnection(arg);
+                
+        con.connect(function(err) {
+            if (err){
+                sendJsonResponse(res, 404, err);
+                return;
+            }
+            console.log("Connected!");
+            
+            con.query(
+                "DELETE FROM movilidad WHERE Placa="+req.body.placa,
+                function (err, result, fields) {
                     if (err) {
+                        con.end();                        
                         sendJsonResponse(res, 404, err);
                         return;
+                    }else{
+                        console.log(result);                    
+                        sendJsonResponse(res, 200, result);
+                        return;
                     }
-                    console.log(movilidadById);
-                    sendJsonResponse(res, 204, null);
                 }
             );
+        });
     } else {
         sendJsonResponse(res, 404, {
-            "message": "No Movilidad"}
-            );
+            "message": "No movilidad in request"}
+        );
     }
 };
 
-module.exports.MovilidadUpdateGPS = function(req, res) {
-    if (!req.body.movilidad) {
+module.exports.MovilidadUpdateGPS = function (req, res) {
+    if (!req.body.placa) {
         sendJsonResponse(res, 404, {
-            "message": "Not found, movilidad's id is required"}
-            );
+            "message": "Not found, movilidad's id is required"
+        }
+        );
         return;
     }
 
-    Movilidad
-        .findById(req.body.movilidad)
-        .select('-comments')
-        .exec(
-            function(err, movilidadById) {
-                if (!movilidadById) {
-                    sendJsonResponse(res, 404, {
-                        "message": "movilidad's id not found"}
-                        );
-                    return;
-                } else if (err) {
-                    sendJsonResponse(res, 400, err);
-                    return;
-                }
-
-		        movilidadById.longitud=req.body.longitud;	
-                movilidadById.latitud=req.body.latitud;
+    if (req.body.placa != null ||
+        req.body.longitud != null ||
+        req.body.latitud != null ) {
+        
+        var con = mysql.createConnection(arg);
                 
-		        movilidadById.save(function(err, movilidadById) {
-                    if (err) {
-                        sendJsonResponse(res, 404, err);
-                    } else {
-                        console.log(movilidadById);
-                        sendJsonResponse(res, 200, movilidadById);
-                    }
-                });
+        con.connect(function(err) {
+            if (err){
+                sendJsonResponse(res, 404, err);
+                return;
             }
+            console.log("Connected!");
+            
+            con.query(
+                "UPDATE movilidad SET latitud= "+req.body.latitud+" ,longitud= "+req.body.longitud+" WHERE Placa='"+req.body.placa+"'",
+                function (err, result, fields) {
+                    if (err) {
+                        con.end();                        
+                        sendJsonResponse(res, 404, err);
+                        return;
+                    }else{
+                        console.log(result);                    
+                        sendJsonResponse(res, 200, result);
+                        return;
+                    }
+                }
+            );
+        });
+    } else {
+        sendJsonResponse(res, 404, {
+            "message": "No movilidad in request"}
         );
+    }
 };
