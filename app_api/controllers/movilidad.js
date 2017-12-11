@@ -78,7 +78,7 @@ module.exports.MovilidadReadOne = function (req, res) {
 
 // Crear Movilidad
 module.exports.MovilidadCreate = function (req, res) {
-    if (req.body.placa != null ||
+    if (req.body.Placa != null ||
         req.body.Capacidad != null||
         req.body.Tipo != null
         ) {
@@ -93,7 +93,7 @@ module.exports.MovilidadCreate = function (req, res) {
             console.log("Connected!");
             
             con.query(
-                "INSERT INTO movilidad(`Placa`, `Capacidad`, `Tipo`) VALUES ('"+req.body.placa+"', "+req.body.Capacidad+", '"+req.body.Tipo+"')", 
+                "INSERT INTO movilidad(`Placa`, `Capacidad`, `Tipo`) VALUES ('"+req.body.Placa+"', "+req.body.Capacidad+", '"+req.body.Tipo+"')", 
                 function (err, result, fields) {
                     if (err) {
                         con.end();                        
@@ -116,7 +116,7 @@ module.exports.MovilidadCreate = function (req, res) {
 
 // Actualizar movilidad
 module.exports.MovilidadUpdateOne = function (req, res) {
-    if (!req.body.placa) {
+    if (!req.body.Placa) {
         sendJsonResponse(res, 404, {
             "message": "Not found, movilidad's id is required"
         }
@@ -124,7 +124,7 @@ module.exports.MovilidadUpdateOne = function (req, res) {
         return;
     }
 
-    if (req.body.placa != null ||
+    if (req.body.Placa != null ||
         req.body.Capacidad != null ||
         req.body.Tipo != null ) {
         
@@ -138,7 +138,7 @@ module.exports.MovilidadUpdateOne = function (req, res) {
             console.log("Connected!");
             
             con.query(
-                "UPDATE movilidad SET Capacidad= "+req.body.Capacidad+" ,Tipo ='"+req.body.Tipo+"' WHERE Placa='"+req.body.placa+"'",
+                "UPDATE movilidad SET Capacidad= "+req.body.Capacidad+" ,Tipo ='"+req.body.Tipo+"' WHERE Placa='"+req.body.Placa+"'",
                 function (err, result, fields) {
                     if (err) {
                         con.end();                        

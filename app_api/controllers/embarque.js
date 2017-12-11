@@ -12,6 +12,7 @@ var sendJsonResponse = function (res, status, content) {
     res.json(content);
 };
 
+var queryEmbarque = "SELECT embarque.embarqueid, movilidad.Placa, embarque.yy, embarque.mm, embarque.dd, embarque.H, embarque.M, embarque.ingreso, movilidad.Capacidad, movilidad.Tipo FROM embarque INNER JOIN movilidad ON (embarque.Movilidad = movilidad.Placa) ";
 // Leer lista de embarques
 module.exports.EmbarqueList = function (req, res) {
     var con = mysql.createConnection(arg);
@@ -24,7 +25,7 @@ module.exports.EmbarqueList = function (req, res) {
         console.log("Connected!");
 
         con.query(
-            "SELECT * FROM embarque",
+            queryEmbarque,
             function (err, result, fields) {
                 con.end();
                 if (err) {
@@ -54,7 +55,7 @@ module.exports.EmbarqueReadOne = function (req, res) {
             console.log("Connected!");
 
             con.query(
-                "SELECT * FROM embarque WHERE embarqueid = " + req.params.embarque,
+                queryEmbarque + " WHERE embarqueid = " + req.params.embarque,
                 function (err, result, fields) {
                     if (err) {
                         con.end();
@@ -90,8 +91,8 @@ module.exports.EmbarqueCreate = function (req, res) {
         (req.body.yy == null) ||
         (req.body.mm == null) ||
         (req.body.dd == null) ||
-        (req.body.HH == null) ||
-        (req.body.MM == null) ||
+        (req.body.H == null) ||
+        (req.body.M == null) ||
         (req.body.ingreso == null)
     ) {
         sendJsonResponse(res, 404, {
@@ -101,7 +102,7 @@ module.exports.EmbarqueCreate = function (req, res) {
         return;
     }
 
-    var DateParm = [req.body.yy, req.body.mm, req.body.dd, req.body.HH, req.body.MM];
+    var DateParm = [req.body.yy, req.body.mm, req.body.dd, req.body.H, req.body.M];
 
     var con = mysql.createConnection(arg);
 
@@ -143,8 +144,8 @@ module.exports.EmbarqueUpdateOne = function (req, res) {
         req.body.yy != null ||
         req.body.mm != null ||
         req.body.dd != null ||
-        req.body.HH != null ||
-        req.body.MM != null ||
+        req.body.H != null ||
+        req.body.M != null ||
         req.body.ingreso != null
     ) {
 
@@ -158,7 +159,7 @@ module.exports.EmbarqueUpdateOne = function (req, res) {
             console.log("Connected!");
 
             con.query(
-                "UPDATE embarque SET yy= " + req.body.yy + ", mm= " + req.body.mm + ", dd= " + req.body.dd + ", H= " + req.body.HH + ", M= " + req.body.MM + ", ingreso= " + req.body.ingreso + "  WHERE embarqueid=" + req.body.embarque,
+                "UPDATE embarque SET yy= " + req.body.yy + ", mm= " + req.body.mm + ", dd= " + req.body.dd + ", H= " + req.body.H + ", M= " + req.body.M + ", ingreso= " + req.body.ingreso + "  WHERE embarqueid=" + req.body.embarque,
                 function (err, result, fields) {
                     if (err) {
                         con.end();
@@ -213,6 +214,35 @@ module.exports.EmbarqueDeleteOne = function (req, res) {
         }
         );
     }
+};
+
+module.exports.EmbarqueReport = function (req, res) {
+    var con = mysql.createConnection(arg);
+    var mm = req.body.mm;
+    var ddi = req.body.ddi;
+    var ddf = req.body.ddf;
+    con.connect(function (err) {
+        if (err) {
+            sendJsonResponse(res, 404, err);
+            return;
+        }
+        console.log("Connected!");
+        console.log("SELECT * FROM embmov WHERE mm = "+mm+" && dd BETWEEN "+ddi+" AND "+ddf + " ORDER BY mm, dd DESC")
+        con.query(
+            "SELECT * FROM embmov WHERE mm = "+mm+" && dd BETWEEN "+ddi+" AND "+ddf + " ORDER BY mm, dd DESC",
+            function (err, result, fields) {
+                con.end();
+                if (err) {
+                    sendJsonResponse(res, 404, err);
+                    return;
+                } else {
+                    console.log(result);
+                    sendJsonResponse(res, 200, result);
+                    return;
+                }
+            }
+        );
+    });
 };
 
 /* Registrar asientos*/
