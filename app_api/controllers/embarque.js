@@ -1,21 +1,26 @@
 var mongoose = require('mongoose');
 var Embarque = mongoose.model('Embarque');
 
-var sendJsonResponse = function(res, status, content) {
+var sendJsonResponse = function (res, status, content) {
     res.status(status);
     res.json(content);
 };
 
 // Leer lista de embarques
-module.exports.EmbarqueList = function(req,res){
+module.exports.EmbarqueList = function (req, res) {
     Embarque
         .find()
+        .sort({ 
+            mm : -1,
+            dd : -1
+        })
         .populate('Movilidad')
-        .exec(function(err, embarques) {
+        .exec(function (err, embarques) {
             if (!embarques) {
                 sendJsonResponse(res, 404, {
-                    "message": "embarques not found"}
-                    );
+                    "message": "embarques not found"
+                }
+                );
                 return;
             } else if (err) {
                 sendJsonResponse(res, 404, err);
@@ -26,18 +31,19 @@ module.exports.EmbarqueList = function(req,res){
 }
 
 // Leer Embarque por ID mongoDB
-module.exports.EmbarqueReadOne = function(req, res) {
+module.exports.EmbarqueReadOne = function (req, res) {
     if (req.params.embarque) {
         Embarque
             .findById(req.params.embarque)
             .populate('Movilidad')
             .populate('Asientos.ClienteDueno')
-            .exec(function(err, embarqueById) {
+            .exec(function (err, embarqueById) {
                 console.log("Buscando Embarque by ID");
                 if (!embarqueById) {
                     sendJsonResponse(res, 404, {
-                        "message": "Embarque not found"}
-                        );
+                        "message": "Embarque not found"
+                    }
+                    );
                     return;
                 } else if (err) {
                     sendJsonResponse(res, 404, err);
@@ -47,34 +53,37 @@ module.exports.EmbarqueReadOne = function(req, res) {
             });
     } else {
         sendJsonResponse(res, 404, {
-            "message": "No userid in request"}
-            );
+            "message": "No userid in request"
+        }
+        );
     }
 };
 
 // Crear Embarque
-module.exports.EmbarqueCreate = function(req, res) {
-    if( req.body.Movilidad == null ){
+module.exports.EmbarqueCreate = function (req, res) {
+    if (req.body.Movilidad == null) {
         sendJsonResponse(res, 404, {
-            "message": "Falta Movilidad"}
+            "message": "Falta Movilidad"
+        }
         );
         return;
     }
 
-    if( (req.body.yy == null) || 
-        (req.body.mm == null) || 
-        (req.body.dd == null) || 
-        (req.body.HH == null) || 
-        (req.body.MM == null) || 
+    if ((req.body.yy == null) ||
+        (req.body.mm == null) ||
+        (req.body.dd == null) ||
+        (req.body.HH == null) ||
+        (req.body.MM == null) ||
         (req.body.ingreso == null)
-    ){    
+    ) {
         sendJsonResponse(res, 404, {
-            "message": "Horario incompleto"}
+            "message": "Horario incompleto"
+        }
         );
         return;
     }
 
-    var DateParm = [ req.body.yy, req.body.mm, req.body.dd, req.body.HH, req.body.MM ];
+    var DateParm = [req.body.yy, req.body.mm, req.body.dd, req.body.HH, req.body.MM];
     Embarque
         .create({
             Movilidad: req.body.Movilidad,
@@ -84,25 +93,26 @@ module.exports.EmbarqueCreate = function(req, res) {
             HH: DateParm[3],
             MM: DateParm[4],
             ingreso: req.body.ingreso
-            }, 
-            function(err, EmbarqueCreate){
-                if(err){
-                    console.log(err);
-                    sendJsonResponse(res,400,err);
-                }else {
-                    console.log(EmbarqueCreate);
-                    sendJsonResponse(res,201,EmbarqueCreate);
-                }
+        },
+        function (err, EmbarqueCreate) {
+            if (err) {
+                console.log(err);
+                sendJsonResponse(res, 400, err);
+            } else {
+                console.log(EmbarqueCreate);
+                sendJsonResponse(res, 201, EmbarqueCreate);
             }
+        }
         );
 };
 
 // Actualizar embarque
-module.exports.EmbarqueUpdateOne = function(req, res) {
+module.exports.EmbarqueUpdateOne = function (req, res) {
     if (!req.body.embarque) {
         sendJsonResponse(res, 404, {
-            "message": "Not found, embarque's id is required"}
-            );
+            "message": "Not found, embarque's id is required"
+        }
+        );
         return;
     }
 
@@ -110,101 +120,117 @@ module.exports.EmbarqueUpdateOne = function(req, res) {
         .findById(req.body.embarque)
         .select('-comments')
         .exec(
-            function(err, embarqueById) {
-                if (!embarqueById) {
-                    sendJsonResponse(res, 404, {
-                        "message": "embarque's id not found"}
-                        );
-                    return;
-                } else if (err) {
-                    sendJsonResponse(res, 400, err);
-                    return;
+        function (err, embarqueById) {
+            if (!embarqueById) {
+                sendJsonResponse(res, 404, {
+                    "message": "embarque's id not found"
                 }
-
-		        embarqueById.Movilidad = req.body.Movilidad;	
-                embarqueById.yy = req.body.yy;
-                embarqueById.mm = req.body.mm;
-                embarqueById.dd = req.body.dd;
-                embarqueById.HH = req.body.HH;
-                embarqueById.MM = req.body.MM;
-                embarqueById.ingreso= req.body.ingreso
-		        embarqueById.save(function(err, embarqueById) {
-                    if (err) {
-                        sendJsonResponse(res, 404, err);
-                    } else {
-                        console.log(embarqueById);
-                        sendJsonResponse(res, 200, embarqueById);
-                    }
-                });
+                );
+                return;
+            } else if (err) {
+                sendJsonResponse(res, 400, err);
+                return;
             }
+
+            embarqueById.Movilidad = req.body.Movilidad;
+            embarqueById.yy = req.body.yy;
+            embarqueById.mm = req.body.mm;
+            embarqueById.dd = req.body.dd;
+            embarqueById.HH = req.body.HH;
+            embarqueById.MM = req.body.MM;
+            embarqueById.ingreso = req.body.ingreso
+            embarqueById.save(function (err, embarqueById) {
+                if (err) {
+                    sendJsonResponse(res, 404, err);
+                } else {
+                    console.log(embarqueById);
+                    sendJsonResponse(res, 200, embarqueById);
+                }
+            });
+        }
         );
 };
 
 // Eliminar Embarque
-module.exports.EmbarqueDeleteOne = function(req, res) {
+module.exports.EmbarqueDeleteOne = function (req, res) {
     if (req.params.embarque) {
-       Embarque
+        Embarque
             .findByIdAndRemove(req.params.embarque)
             .exec(
-                function(err, embarqueById) {
-                    if (err) {
-                        sendJsonResponse(res, 404, err);
-                        return;
-                    }
-                    console.log(embarqueById);
-                    sendJsonResponse(res, 204, null);
+            function (err, embarqueById) {
+                if (err) {
+                    sendJsonResponse(res, 404, err);
+                    return;
                 }
+                console.log(embarqueById);
+                sendJsonResponse(res, 204, null);
+            }
             );
     } else {
         sendJsonResponse(res, 404, {
-            "message": "No Embarque"}
-            );
+            "message": "No Embarque"
+        }
+        );
     }
 };
 
 /* Registrar asientos*/
 
-module.exports.RegistrarAsiento = function(req, res) {
-    
-    if (!req.params.embarque) {
+module.exports.RegistrarAsiento = function (req, res) {
+
+    if (!req.body.embarque ||
+        !req.body.Cliente) {
         sendJsonResponse(res, 404, {
-            "message": "Not found, embarque's id is required"}
-            );
+            "message": "Not found, embarque's id is required"
+        }
+        );
         return;
     }
 
     Embarque
-        .findById(req.params.embarque)
+        .findById(req.body.embarque)
         .select('-comments')
         .exec(
-            function(err, embarqueById) {
-                if (!embarqueById) {
-                    sendJsonResponse(res, 404, {
-                        "message": "embarque's id is not found"}
-                        );
-                    return;
-                } else if (err) {
-                    sendJsonResponse(res, 400, err);
-                    return;
-                }
-
-                addAsientoToEmbarque(req, res, embarqueById);
-
+        function (err, embarqueById) {
+            if (!embarqueById) {
+                sendJsonResponse(res, 404, {
+                    "message": "embarque's id is not found"
+                    }
+                );
+                return;
+            } else if (err) {
+                sendJsonResponse(res, 400, err);
+                return;
             }
+
+            embarqueById.Asientos
+                .find({NumAsiento: NumAsiento})
+                .exec(
+                    function (err, Asientos){
+                        
+                    }
+                );
+            //addAsientoToEmbarque(req, res, embarqueById);
+
+        }
         );
 };
 
-var addAsientoToEmbarque = function(req, res, embarqueById) {
-    if (!embarqueById) {
+var addAsientoToEmbarque = function (req, res, embarqueById) {
+    if (!req.body.NumAsiento ||
+        !req.body.Cliente ||
+        !req.body.DNI
+        ) {
         sendJsonResponse(res, 404, "embarque is empty");
     } else {
         embarqueById.Asientos.push({
             NumAsiento: req.body.NumAsiento,
-            ClienteDueno: req.body.ClienteDueno,
+            Cliente: req.body.Cliente,
+            DNI: req.body.DNI,
         });
-    
-        embarqueById.save(function(err, embarqueById) {
-            var asiento =embarqueById.Asientos[embarqueById.Asientos.length - 1];
+
+        embarqueById.save(function (err, embarqueById) {
+            var asiento = embarqueById.Asientos[embarqueById.Asientos.length - 1];
             if (err) {
                 sendJsonResponse(res, 404, err);
             } else {
@@ -212,5 +238,43 @@ var addAsientoToEmbarque = function(req, res, embarqueById) {
                 sendJsonResponse(res, 200, asiento);
             }
         });
-    }    
+    }
 };
+
+module.exports.ReportEmbarque = function (req, res) {
+    if (req.body.yy != null &&
+        req.body.mm != null &&
+        req.body.ddi != null &&
+        req.body.ddf != null
+    ) {
+
+        Embarque
+            .find({
+                yy: req.body.yy,
+                mm: req.body.mm,
+                dd: {
+                    $gte: req.body.ddi,
+                    $lte: req.body.ddf
+                }
+            })
+            .sort({ 
+                dd : -1,
+            })
+            .populate('Movilidad')
+            .exec(function (err, embarques) {
+                if (!embarques) {
+                    sendJsonResponse(res, 404, {
+                        "message": "embarques not found"
+                    }
+                    );
+                    return;
+                } else if (err) {
+                    sendJsonResponse(res, 404, err);
+                    return;
+                }
+                sendJsonResponse(res, 200, embarques);
+            });
+    }else{
+        sendJsonResponse(res, 404, "Data is empty");
+    }
+}

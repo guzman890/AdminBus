@@ -1,6 +1,4 @@
 var mongoose = require( 'mongoose' ), Schema = mongoose.Schema;
-//require
-var dbcliente= require('./cliente');
 
 //Embarque
 var AsientoSchema = new mongoose.Schema({
@@ -9,10 +7,12 @@ var AsientoSchema = new mongoose.Schema({
         required:true, 
         size:2
     },
-    ClienteDueno: {
-        type: Schema.Types.ObjectId,
-        ref: "Cliente",
+    Cliente: {
+        type: String,
         required: true
+    },
+    DNI: {
+        type:Number, 
     },
     Fecha:{ 
         type: Date,
